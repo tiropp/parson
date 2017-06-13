@@ -34,6 +34,10 @@
 #include <ctype.h>
 #include <math.h>
 #include <errno.h>
+#if MSVC_LESS_1600_WINCE
+# include <cerrno>
+#endif
+
 
 /* Apparently sscanf is not implemented in some "standard" libraries, so don't use it, if you
  * don't have to. */
@@ -277,7 +281,11 @@ static char * read_file(const char * filename) {
         return NULL;
     }
     file_size = pos;
+  #if MSVC_LESS_1600_WINCE
+    fseek(fp, 0L, SEEK_SET);
+  #else
     rewind(fp);
+  #endif
     file_contents = (char*)parson_malloc(sizeof(char) * (file_size + 1));
     if (!file_contents) {
         fclose(fp);
